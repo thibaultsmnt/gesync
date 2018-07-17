@@ -38,12 +38,7 @@ class GuichetEtudiant:
         self.__authenticate(username, password)
 
     def get_student_formation(self):
-        return self.__session.post(
-            GuichetEtudiant.base_url + "/getStudentFormation",
-            data = {
-                "__RequestVerificationToken": self.__token
-            }
-        )
+        return self.__request(self.__session.post, "/getStudentFormation")
 
     def get_events(self, start_date, end_date):
         # Get formation ids
@@ -68,53 +63,42 @@ class GuichetEtudiant:
     def get_agenda_page(self):
         return self.__session.post(GuichetEtudiant.base_url + "/Agenda")
 
-
     def get_event_in_period(self, formation_ids, start_date, end_date):
         form_data = {
             "start": start_date,
             "end": end_date,
             "formations": formation_ids,
             "groupFilter": "all",
-            "__RequestVerificationToken": self.__token
         }
 
-        events_request = self.__session.post(
-            GuichetEtudiant.base_url + "/getEventInPeriode", data=form_data
-        )
+        return self.__request(self.__session.post, "/getEventInPeriode", data=form_data).json()
 
-        return json.loads(events_request.content)
+    
+    def __request(self, method, uri, data={}):
+        if not data.get("__RequestVerificationToken"):
+            data["__RequestVerificationToken"] = self.__token
+
+        return method(GuichetEtudiant.base_url + uri,  data = data)
 
 
-    def __parse_verification_token(self, page):
-        """ Expects page to be GuichetEtudiant Agenda page content and parses
-            "__RequestVerificationToken" from XML data """
+    def __authenticate(self, username, password):
+        """ Using NTLM authentication, fetch the agenda page and parse out the
+        "__RequestVerificationToken" for use in subsequent requests"""
+        self.__session = requests.Session()
+        self.__session.auth = HttpNtlmAuth('\\' + username, password)
+        agenda = self.get_agenda_page()
 
-        soup = BeautifulSoup(page, "lxml")
+
+        # TODO: find a more efficient way to do this
+        soup = BeautifulSoup(agenda.content, "lxml")
         xmlData = soup.find(id="layout-data").get_text()
 
         for l in xmlData.split("\\r\\n"):
             if "__RequestVerificationToken" in l:
-                input_field = BeautifulSoup(l, "html.parser").input
-                return input_field["value"]
+                input_field = BeautifulSoup(l, "lxml").input
+                self.__token = input_field["value"]
+                break
 
-    
-    def __authenticate(self, username, password):
-        self.__session = requests.Session()
-        self.__session.auth = HttpNtlmAuth('\\' + username, password)
-        agenda = self.get_agenda_page()
-        self.__token = self.__parse_verification_token(agenda.content)
-
-
-
-# TODO: not sure if this is still needed
-# def parseHeader(agenda_response):
-#     cookies = agenda_response.headers["Set-Cookie"]
-#     new_header = [xs.split("; ") for xs in cookies.split(", ") if xs.startswith("TS")][0]
-#     h = new_header[0].split("=")
-#     jar = agenda_response.cookies
-#     jar[h[0]] = h[1]
-
-#     return jar
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -202,9 +186,6 @@ def clear_from_now(service, calendar):
 
         
 def main():
-    # start_date = datetime.now()
-    # end_date = datetime(year=2018, month=3, day=30)
-    
     start_date = datetime(year=2018, month=1, day=30)
     end_date = datetime(year=2018, month=3, day=30)
     
