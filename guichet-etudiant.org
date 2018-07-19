@@ -1,0 +1,31 @@
+#+TITLE: Guichet Etudiant
+
+* Needs/Wants
+- Information about the mobility semester
+- Course agenda
+
+* Site map
+
+** GuichetEtudiant
+  - /Inscriptions/Student/GuichetEtudiant/getInfosEtudiant
+    Method: POST
+    Body: __RequestVerificationToken extracted from /Agenda page
+    Comment: Returns the user's last name and first name separated by a space
+  - /Inscriptions/Student/GuichetEtudiant/getStudentFormation
+    Method: POST
+    Body: __RequestVerificationToken extracted from /Agenda page
+    Comment: Array with object(s) that have following attributes:
+    - formationColor (string)
+    - idForm (string): identifier used in subsequent requests, 
+                       i.e. to get events
+    - libelle (string): the name of the formation, i.e. BiCS
+    - principal (boolean): if it is the main formation or not
+
+  - Course schedule
+  - Student cards
+  - Documents
+  - Contracts
+  - Personal data
+  - Represent students
+  - Graduation week
+  - Help
