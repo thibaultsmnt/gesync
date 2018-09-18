@@ -186,25 +186,25 @@ def clear_from_now(service, calendar):
 
         
 def main():
-    start_date = datetime(year=2018, month=1, day=30)
-    end_date = datetime(year=2018, month=3, day=30)
+    start_date = datetime(year=2018, month=9, day=17)
+    end_date = datetime(year=2018, month=12, day=30)
     
     ge = GuichetEtudiant(USERNAME, PASSWORD)
-    print(ge.get_events(start_date, end_date))
+    events = ge.get_events(start_date, end_date)
     
-    # credentials = get_credentials()
-    # http = credentials.authorize(httplib2.Http())
-    # service = discovery.build('calendar', 'v3', http=http)
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('calendar', 'v3', http=http)
 
-    # cal = find_calendar(service, "University")
-    # if not cal:
-    #     raise ValueError("No given calendar found")
+    cal = find_calendar(service, "University")
+    if not cal:
+        raise ValueError("No given calendar found")
 
-    # print("Clearing {} calendar".format(cal["summary"]))
-    # clear_from_now(service, cal)
+    print("Clearing {} calendar".format(cal["summary"]))
+    clear_from_now(service, cal)
     
-    # print("Event count:", len(events))
-    # insert_events(service, cal, events)
+    print("Event count:", len(events))
+    insert_events(service, cal, events)
 
 
 
