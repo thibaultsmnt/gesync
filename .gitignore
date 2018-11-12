@@ -1,6 +1,7 @@
 # Sensitive files
 creds.py
-client_secret.json
+credentials.json
+token.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
