@@ -1,3 +1,6 @@
+# Ignore virtual environment
+.python-version
+
 # Sensitive files
 creds.py
 credentials.json
