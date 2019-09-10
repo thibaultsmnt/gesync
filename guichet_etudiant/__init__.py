@@ -3,6 +3,7 @@ from requests_ntlm import HttpNtlmAuth
 
 import json
 import re
+from courses import COURSES
 
 
 REQUEST_VERIFICATION_REGEX = r"<input\sname=\"__RequestVerificationToken\"\stype=\"hidden\"\svalue=\"([a-zA-Z0-9_-]+)\" />"
@@ -30,6 +31,9 @@ class GuichetEtudiant:
         # TODO: kinda complicated and cumbersome, should rewrite this
         # should use a proper object for this that decodes
         # (and encodes) this structure
+
+        events = filter(lambda c: c["Cours"] in COURSES, events)
+
         keys = [
             "DateDebut", "DateFin", "Local",
             "Enseignant", "Cours", "Title",
